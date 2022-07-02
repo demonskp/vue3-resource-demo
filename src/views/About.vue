@@ -1,31 +1,32 @@
+<script setup >
+import { useResource } from '../hooks/useResource';
+import { fackApi, fackNoCatchApi } from '../api/index';
+import { reactive } from '@vue/reactivity';
+
+const params = reactive({page:1,pageSize:2});
+
+const { data, reLoading, setData } = useResource(fackApi, params, {cleanAfter:true});
+const { data:noCacheData, reLoading: noCacheReload } = useResource(fackNoCatchApi);
+
+const showSomething = ()=>{
+  params.page = 2;
+}
+const reSetData = ()=>{
+  setData({
+          name: 333,
+          msg: '成功'
+        })
+}
+</script>
+
 <template>
   <div class="about">
     <h1 @click="showSomething">This is an about page</h1>
+    <h2 @click="reSetData">手动设置</h2>
     <div>{{ data?.name }}</div>
+    <div @click="noCacheReload">{{noCacheData?.name }}</div>
+    <div>
+      <span @click="reLoading()">参数：{{params}}</span>
+    </div>
   </div>
 </template>
-<script>
-import { useResource } from '../hooks/useResource';
-import { fackApi } from '../api/index';
-import { useStore } from 'vuex';
-import { computed } from '@vue/reactivity';
-
-export default {
-  setup() {
-    const store = useStore();
-
-    const { loading, data, reLoading } = useResource('temp', fackApi);
-
-    return {
-      loading,
-      data: data,
-      reLoading,
-      ppp: computed(()=>store.state.RESOURCE_CACHE_MODULE.RESOURCE_CACHE_MODULE),
-      showSomething(){
-        console.log(this.data, this.ppp);
-        this.reLoading(2);
-      }
-    }
-  },
-}
-</script>
